@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NBCUniversal · WoW Bi-Weekly Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --navy: #0a0a0a;
+    --navy-mid: #111111;
+    --navy-light: #1e1e1e;
+    --gold: #FFD100;
+    --gold-light: #FFE14D;
+    --teal: #00AEEF;
+    --slate: #888888;
+    --white: #f5f5f5;
+    --danger: #E6002D;
+    --success: #00B140;
+    --warn: #FF6B00;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, var(--navy-mid), var(--navy-light));
+    border-bottom: 3px solid var(--gold);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    color: var(--gold-light);
+    letter-spacing: 0.02em;
+  }
+  header .week-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--slate);
+    background: var(--navy);
+    border: 1px solid var(--navy-light);
+    padding: 6px 14px;
+    border-radius: 4px;
+  }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-gold { background: var(--gold); color: var(--navy); }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-outline { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+  .btn-outline:hover { background: var(--gold); color: var(--navy); }
+  .btn-teal { background: var(--teal); color: var(--navy); }
+  .btn-teal:hover { opacity: 0.85; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 40px;
+    background: var(--navy-mid);
+    border-bottom: 1px solid var(--navy-light);
+  }
+  .tab {
+    padding: 14px 24px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--slate);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .tab:hover:not(.active) { color: var(--white); }
+
+  /* MAIN */
+  main { padding: 32px 40px; max-width: 1200px; margin: 0 auto; }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--navy-mid);
+    border: 1px solid var(--navy-light);
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .stat-card.total::before { background: var(--gold); }
+  .stat-card.submitted::before { background: var(--success); }
+  .stat-card.pending::before { background: var(--warn); }
+  .stat-card.blocked::before { background: var(--danger); }
+  .stat-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  /* ADD TEAM FORM */
+  .panel {
+    background: var(--navy-mid);
+    border: 1px solid var(--navy-light);
+    border-radius: 10px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .panel-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--gold-light);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--navy-light);
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+  }
+  input, select, textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    background: var(--navy);
+    color: var(--white);
+    border: 1px solid var(--navy-light);
+    border-radius: 6px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+  textarea { resize: vertical; min-height: 70px; }
+  select option { background: var(--navy-mid); }
+
+  /* TRACKER TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  thead th {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    padding: 12px 16px;
+    text-align: left;
+    background: var(--navy);
+    border-bottom: 1px solid var(--navy-light);
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--navy-light);
+    transition: background 0.15s;
+    animation: rowIn 0.3s ease;
+  }
+  @keyframes rowIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  tbody tr:hover { background: rgba(255,255,255,0.03); }
+  tbody td { padding: 14px 16px; color: var(--white); vertical-align: top; }
+  .status-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+  .badge-submitted { background: rgba(76,175,130,0.15); color: var(--success); border: 1px solid rgba(76,175,130,0.3); }
+  .badge-pending { background: rgba(224,166,76,0.15); color: var(--warn); border: 1px solid rgba(224,166,76,0.3); }
+  .badge-blocked { background: rgba(224,92,92,0.15); color: var(--danger); border: 1px solid rgba(224,92,92,0.3); }
+  .focus-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: rgba(201,168,76,0.12);
+    color: var(--gold-light);
+    border: 1px solid rgba(201,168,76,0.25);
+    margin: 2px 2px 2px 0;
+  }
+  .action-btns { display: flex; gap: 8px; }
+  .btn-sm {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: opacity 0.2s;
+  }
+  .btn-sm:hover { opacity: 0.8; }
+  .btn-edit { background: rgba(45,205,194,0.15); color: var(--teal); }
+  .btn-delete { background: rgba(224,92,92,0.12); color: var(--danger); }
+
+  /* SUMMARY VIEW */
+  .summary-section { margin-bottom: 28px; }
+  .summary-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--gold-light);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--navy-light);
+  }
+  .summary-item {
+    background: var(--navy);
+    border-left: 3px solid var(--gold);
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border-radius: 0 6px 6px 0;
+  }
+  .summary-item .team-name {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--gold-light);
+    margin-bottom: 4px;
+  }
+  .summary-item .summary-text { font-size: 0.84rem; color: var(--slate); line-height: 1.5; }
+  .blocker-item { border-left-color: var(--danger); }
+  .win-item { border-left-color: var(--success); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,27,45,0.85);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--navy-mid);
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    padding: 32px;
+    width: 600px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--gold-light);
+    margin-bottom: 24px;
+  }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--slate);
+  }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-size: 0.9rem; }
+
+  /* PRINT */
+  @media print {
+    header, .tabs, .stats-bar, .panel, .action-btns, .btn { display: none !important; }
+    body { background: white; color: black; }
+  }
+  @media (max-width: 768px) {
+    header, main, .tabs { padding-left: 16px; padding-right: 16px; }
+    .stats-bar { grid-template-columns: 1fr 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div style="display:flex;flex-direction:column;gap:3px;margin-right:4px;">
+      <div style="width:5px;height:5px;border-radius:50%;background:#E6002D;"></div>
+      <div style="width:5px;height:5px;border-radius:50%;background:#FF6B00;"></div>
+      <div style="width:5px;height:5px;border-radius:50%;background:#FFD100;"></div>
+      <div style="width:5px;height:5px;border-radius:50%;background:#00B140;"></div>
+      <div style="width:5px;height:5px;border-radius:50%;background:#00AEEF;"></div>
+      <div style="width:5px;height:5px;border-radius:50%;background:#7B2D8B;"></div>
+    </div>
+    <div>
+      <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:2px;">NBCUniversal</div>
+      <h1>Ways of Working Tracker</h1>
+      <div style="font-size:0.75rem;color:var(--slate);margin-top:4px;">Sr. Scrum Lead · Leadership Visibility Dashboard</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="week-badge" id="weekLabel">Bi-Weekly Period —</div>
+    <button class="btn btn-outline" onclick="showTab('summary')">📋 Summary View</button>
+    <button class="btn btn-gold" onclick="openAddModal()">+ Add Entry</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('tracker')" id="tab-tracker">Tracker</div>
+  <div class="tab" onclick="showTab('summary')" id="tab-summary">Leadership Summary</div>
+</div>
+
+<main>
+  <!-- TRACKER TAB -->
+  <div id="view-tracker">
+    <div class="stats-bar">
+      <div class="stat-card total">
+        <div class="stat-label">Total Teams</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </div>
+      <div class="stat-card submitted">
+        <div class="stat-label">Submitted</div>
+        <div class="stat-value" id="statSubmitted">0</div>
+      </div>
+      <div class="stat-card pending">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value" id="statPending">0</div>
+      </div>
+      <div class="stat-card blocked">
+        <div class="stat-label">Has Blockers</div>
+        <div class="stat-value" id="statBlocked">0</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Weekly Submissions</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Squad</th>
+              <th>Scrum Lead</th>
+              <th>Sprint</th>
+              <th>Focus Area(s)</th>
+              <th>3-in-a-Box Highlights</th>
+              <th>Blockers</th>
+              <th>Wins</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state">
+          <div class="icon">📭</div>
+          <p>No submissions yet. Add your first entry to get started.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY TAB -->
+  <div id="view-summary" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold-light);">Leadership Summary Report</div>
+        <div style="font-size:0.8rem;color:var(--slate);margin-top:4px;" id="summaryWeekLabel">Week of —</div>
+      </div>
+      <button class="btn btn-teal" onclick="window.print()">🖨 Print / Export</button>
+    </div>
+    <div id="summaryContent"></div>
+  </div>
+</main>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Add WoW Entry</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Squad Name</label>
+        <input type="text" id="f-squad" placeholder="e.g. Squad Alpha" />
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Scrum Lead / Submitter *</label>
+        <input type="text" id="f-lead" placeholder="Full name" />
+      </div>
+      <div class="form-group">
+        <label>Sprint #</label>
+        <input type="text" id="f-sprint" placeholder="e.g. Sprint 42" />
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Status</label>
+        <select id="f-status">
+          <option value="submitted">Submitted</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid full">
+      <div class="form-group">
+        <label>Weekly Focus Area(s) *</label>
+        <input type="text" id="f-focus" placeholder="e.g. Intake, Refinement, Dependency Resolution" />
+      </div>
+    </div>
+    <div class="form-grid full">
+      <div class="form-group">
+        <label>3-in-a-Box Highlights / Key Decisions</label>
+        <textarea id="f-highlights" placeholder="Notable updates, process changes, agreements..."></textarea>
+      </div>
+    </div>
+    <div class="form-grid full">
+      <div class="form-group">
+        <label>Blockers / Escalations</label>
+        <textarea id="f-blockers" placeholder="Any items requiring leadership attention... (leave blank if none)"></textarea>
+      </div>
+    </div>
+    <div class="form-grid full">
+      <div class="form-group">
+        <label>Wins / Highlights</label>
+        <textarea id="f-wins" placeholder="Team accomplishments, milestones... (leave blank if none)"></textarea>
+      </div>
+    </div>
+    <div class="form-grid full">
+      <div class="form-group">
+        <label>Additional Notes</label>
+        <textarea id="f-notes" placeholder="Anything else leadership should know..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="saveEntry()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let entries = JSON.parse(localStorage.getItem('wow_entries') || '[]');
+  let editId = null;
+
+  function getWeekLabel() {
+    const start = new Date('2026-03-27');
+    const now = new Date();
+    const msPerDay = 86400000;
+    const daysSinceStart = Math.floor((now - start) / msPerDay);
+    if (daysSinceStart < 0) {
+      return 'Bi-Weekly Period: March 27, 2026 – April 9, 2026';
+    }
+    const periodIndex = Math.floor(daysSinceStart / 14);
+    const periodStart = new Date(start.getTime() + periodIndex * 14 * msPerDay);
+    const periodEnd = new Date(periodStart.getTime() + 13 * msPerDay);
+    const fmt = d => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    return `Bi-Weekly Period: ${fmt(periodStart)} – ${fmt(periodEnd)}`;
+  }
+
+  document.getElementById('weekLabel').textContent = getWeekLabel();
+  document.getElementById('summaryWeekLabel').textContent = getWeekLabel();
+
+  function save() { localStorage.setItem('wow_entries', JSON.stringify(entries)); }
+
+  function showTab(tab) {
+    document.getElementById('view-tracker').style.display = tab === 'tracker' ? 'block' : 'none';
+    document.getElementById('view-summary').style.display = tab === 'summary' ? 'block' : 'none';
+    document.getElementById('tab-tracker').classList.toggle('active', tab === 'tracker');
+    document.getElementById('tab-summary').classList.toggle('active', tab === 'summary');
+    if (tab === 'summary') renderSummary();
+  }
+
+  function openAddModal() {
+    editId = null;
+    document.getElementById('modalTitle').textContent = 'Add WoW Entry';
+    ['squad','lead','sprint','focus','highlights','blockers','wins','notes'].forEach(f => document.getElementById('f-'+f).value = '');
+    document.getElementById('f-status').value = 'submitted';
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function openEditModal(id) {
+    const e = entries.find(x => x.id === id);
+    if (!e) return;
+    editId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Entry';
+    document.getElementById('f-squad').value = e.squad || '';
+    document.getElementById('f-lead').value = e.lead;
+    document.getElementById('f-sprint').value = e.sprint;
+    document.getElementById('f-status').value = e.status;
+    document.getElementById('f-focus').value = e.focus;
+    document.getElementById('f-highlights').value = e.highlights;
+    document.getElementById('f-blockers').value = e.blockers;
+    document.getElementById('f-wins').value = e.wins;
+    document.getElementById('f-notes').value = e.notes;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+
+  function saveEntry() {
+    const lead = document.getElementById('f-lead').value.trim();
+    const focus = document.getElementById('f-focus').value.trim();
+    if (!lead || !focus) { alert('Please fill in Scrum Lead and Focus Area.'); return; }
+    const entry = {
+      id: editId || Date.now().toString(),
+      lead,
+      squad: document.getElementById('f-squad').value.trim(),
+      sprint: document.getElementById('f-sprint').value.trim(),
+      status: document.getElementById('f-status').value,
+      focus,
+      highlights: document.getElementById('f-highlights').value.trim(),
+      blockers: document.getElementById('f-blockers').value.trim(),
+      wins: document.getElementById('f-wins').value.trim(),
+      notes: document.getElementById('f-notes').value.trim(),
+    };
+    if (editId) {
+      entries = entries.map(x => x.id === editId ? entry : x);
+    } else {
+      entries.push(entry);
+    }
+    save(); renderTable(); closeModal();
+  }
+
+  function deleteEntry(id) {
+    if (!confirm('Remove this entry?')) return;
+    entries = entries.filter(x => x.id !== id);
+    save(); renderTable();
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    const empty = document.getElementById('emptyState');
+    tbody.innerHTML = '';
+    empty.style.display = entries.length === 0 ? 'block' : 'none';
+
+    const submitted = entries.filter(e => e.status === 'submitted').length;
+    const pending = entries.filter(e => e.status === 'pending').length;
+    const blocked = entries.filter(e => e.blockers && e.blockers.trim()).length;
+
+    document.getElementById('statTotal').textContent = entries.length;
+    document.getElementById('statSubmitted').textContent = submitted;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('statBlocked').textContent = blocked;
+
+    entries.forEach(e => {
+      const focusTags = e.focus.split(',').map(f => `<span class="focus-tag">${f.trim()}</span>`).join('');
+      const statusClass = e.status === 'submitted' ? 'badge-submitted' : e.status === 'blocked' ? 'badge-blocked' : 'badge-pending';
+      const statusLabel = e.status.charAt(0).toUpperCase() + e.status.slice(1);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="color:var(--slate);font-size:0.82rem">${e.squad || '<span style="opacity:0.35">—</span>'}</td>
+        <td style="color:var(--slate)">${e.lead}</td>
+        <td style="color:var(--slate);font-size:0.8rem">${e.sprint || '—'}</td>
+        <td>${focusTags}</td>
+        <td style="color:var(--slate);max-width:180px;font-size:0.82rem">${e.highlights || '<span style="opacity:0.4">—</span>'}</td>
+        <td style="max-width:140px;font-size:0.82rem">${e.blockers ? `<span style="color:var(--danger)">${e.blockers}</span>` : '<span style="opacity:0.35">None</span>'}</td>
+        <td style="max-width:140px;font-size:0.82rem">${e.wins ? `<span style="color:var(--success)">${e.wins}</span>` : '<span style="opacity:0.35">—</span>'}</td>
+        <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-sm btn-edit" onclick="openEditModal('${e.id}')">Edit</button>
+            <button class="btn-sm btn-delete" onclick="deleteEntry('${e.id}')">✕</button>
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderSummary() {
+    const el = document.getElementById('summaryContent');
+    if (entries.length === 0) {
+      el.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No entries to summarize yet.</p></div>';
+      return;
+    }
+    const submitted = entries.filter(e => e.status === 'submitted');
+    const pending = entries.filter(e => e.status === 'pending');
+    const blocked = entries.filter(e => e.blockers && e.blockers.trim());
+    const wins = entries.filter(e => e.wins && e.wins.trim());
+
+    let html = '';
+
+    // Completion snapshot
+    html += `<div class="panel" style="margin-bottom:24px;">
+      <div style="display:flex;gap:32px;flex-wrap:wrap;">
+        <div><span style="font-size:1.6rem;font-family:'Playfair Display',serif;color:var(--gold)">${entries.length}</span><div style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-top:2px;">Total Teams</div></div>
+        <div><span style="font-size:1.6rem;font-family:'Playfair Display',serif;color:var(--success)">${submitted.length}</span><div style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-top:2px;">Submitted</div></div>
+        <div><span style="font-size:1.6rem;font-family:'Playfair Display',serif;color:var(--warn)">${pending.length}</span><div style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-top:2px;">Pending</div></div>
+        <div><span style="font-size:1.6rem;font-family:'Playfair Display',serif;color:var(--danger)">${blocked.length}</span><div style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-top:2px;">Active Blockers</div></div>
+      </div>
+    </div>`;
+
+    // Focus areas
+    html += `<div class="summary-section"><h3>🎯 Weekly Focus by Team</h3>`;
+    entries.forEach(e => {
+      const focusTags = e.focus.split(',').map(f => `<span class="focus-tag">${f.trim()}</span>`).join(' ');
+      html += `<div class="summary-item"><div class="team-name">${e.squad || '<span style="opacity:0.5">No Squad</span>'} <span style="font-weight:300;color:var(--slate)">· ${e.lead}</span></div><div class="summary-text">${focusTags}${e.highlights ? `<div style="margin-top:8px">${e.highlights}</div>` : ''}</div></div>`;
+    });
+    html += `</div>`;
+
+    // Blockers
+    if (blocked.length > 0) {
+      html += `<div class="summary-section"><h3>🚧 Blockers & Escalations</h3>`;
+      blocked.forEach(e => {
+        html += `<div class="summary-item blocker-item"><div class="team-name">${e.squad || e.lead}</div><div class="summary-text">${e.blockers}</div></div>`;
+      });
+      html += `</div>`;
+    }
+
+    // Wins
+    if (wins.length > 0) {
+      html += `<div class="summary-section"><h3>✅ Team Wins & Highlights</h3>`;
+      wins.forEach(e => {
+        html += `<div class="summary-item win-item"><div class="team-name">${e.squad || e.lead}</div><div class="summary-text">${e.wins}</div></div>`;
+      });
+      html += `</div>`;
+    }
+
+    // Pending
+    if (pending.length > 0) {
+      html += `<div class="summary-section"><h3>⏳ Awaiting Submission</h3>`;
+      pending.forEach(e => {
+        html += `<div class="summary-item" style="border-left-color:var(--warn)"><div class="team-name">${e.squad || '—'} <span style="font-weight:300;color:var(--slate)">· ${e.lead}</span></div></div>`;
+      });
+      html += `</div>`;
+    }
+
+    el.innerHTML = html;
+  }
+
+  renderTable();
+</script>
+</body>
+</html>
